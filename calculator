@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grow A Garden - Value Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Mali', cursive;
+      background: linear-gradient(to bottom, #f4f9f1, #fef8e4);
+      color: #4e3b31;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #5e7444;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    hr {
+      width: 80%;
+      margin: 10px auto;
+      border: 0;
+      height: 2px;
+      background: #c9d6a3;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fffff5;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(172, 200, 165, 0.2);
+      border: 2px solid #e4edc9;
+    }
+
+    .mutation-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 1.05em;
+      margin-bottom: 5px;
+      display: block;
+      color: #6a4c47;
+    }
+
+    select, input[type="number"] {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: 1px solid #cbb9a4;
+      width: 100%;
+      background-color: #f9fff1;
+    }
+
+    .mutation-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .mutation-buttons button, .calculate-btn {
+      background-color: #a6d49f;
+      color: white;
+      padding: 9px 18px;
+      font-size: 0.9em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s;
+      font-family: 'Mali', cursive;
+    }
+
+    .mutation-buttons button:hover, .calculate-btn:hover {
+      background-color: #91c788;
+      transform: scale(1.15);
+    }
+
+    #result {
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 20px;
+      color: #2a5d45;
+    }
+  </style>
+</head>
+<body>
+  <h1>Grow A Garden Value Calculator</h1>
+  <hr>
+  <div class="container">
+    <div>
+      <label for="item">Select Item:</label>
+      <select id="item">
+        <option value="carrot">Carrot</option>
+        <option value="strawberry">Strawberry</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="totalWeight">Enter Weight (kg):</label>
+      <input type="number" id="totalWeight" value="0.01" step="0.01" min="0.01">
+    </div>
+
+    <div id="mutation-panels-container"></div>
+
+    <div class="mutation-buttons">
+      <button id="add-btn">+ Add Mutation</button>
+      <button id="remove-btn">- Remove Mutation</button>
+      <button id="calc-btn" class="calculate-btn">Calculate!</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let mutationCount = 0;
+
+    const mutationMultipliers = {
+      none: 1,
+      golden: 20,
+      rainbow: 50,
+      wet: 2,
+      chilled: 2,
+      frozen: 10,
+      shocked: 50,
+      chocolate: 2
+    };
+
+    function getBasePrice() {
+      const selectedItem = document.getElementById("item").value;
+
+      if (selectedItem === "carrot") {
+        return 83; // fixed price per kg
+      }
+
+      if (selectedItem === "strawberry") {
+        // Reduced price: 90% off the original 1700–2000¢ range
+        const reducedMin = 2000 * 0.1; // 200¢
+        const reducedMax = 2500 * 0.1; // 250¢
+        return Math.floor(Math.random() * (reducedMax - reducedMin + 1)) + reducedMin;
+      }
+
+      return 0;
+    }
+
+    function addMutation() {
+      mutationCount++;
+      const container = document.getElementById("mutation-panels-container");
+
+      const row = document.createElement("div");
+      row.className = "mutation-row";
+      row.id = `mutation${mutationCount}`;
+      row.innerHTML = `
+        <select id="mutation${mutationCount}_type">
+          <option value="none">None (Base Price)</option>
+          <option value="golden">Golden (20x)</option>
+          <option value="rainbow">Rainbow (50x)</option>
+          <option value="wet">Wet (2x)</option>
+          <option value="chilled">Chilled (2x)</option>
+          <option value="frozen">Frozen (10x)</option>
+          <option value="shocked">Shocked (50x)</option>
+          <option value="chocolate">Chocolate (2x)</option>
+        </select>
+      `;
+      container.appendChild(row);
+    }
+
+    function removeMutation() {
+      if (mutationCount > 0) {
+        const row = document.getElementById(`mutation${mutationCount}`);
+        row.remove();
+        mutationCount--;
+      }
+    }
+
+    function calculateValue() {
+      const totalWeight = parseFloat(document.getElementById("totalWeight").value);
+      const basePricePerKg = getBasePrice();
+
+      let totalMultiplier = 1;
+      let breakdown = [];
+
+      for (let i = 1; i <= mutationCount; i++) {
+        const type = document.getElementById(`mutation${i}_type`).value;
+        const multiplier = mutationMultipliers[type];
+        totalMultiplier *= multiplier;
+        breakdown.push(`${type.charAt(0).toUpperCase() + type.slice(1)} (${multiplier}x)`);
+      }
+
+      const nerf = mutationCount >= 3 ? 4 : 1;
+      totalMultiplier *= nerf;
+
+      const rawPrice = basePricePerKg * totalWeight;
+      const minValue = Math.round(rawPrice * 0.8 * totalMultiplier);
+      const maxValue = Math.round(rawPrice * 2.0 * totalMultiplier);
+
+      document.getElementById("result").innerHTML = `
+        <strong>Base Price per kg:</strong> ${Math.round(basePricePerKg)}¢<br>
+        <strong>Total Value Range:</strong> ${minValue}¢ - ${maxValue}¢<br>
+        <strong>Multiplier Chain:</strong> ${breakdown.join(" • ") || "None"}<br>
+        <strong>Total Multiplier:</strong> ~${Math.round(totalMultiplier)}x
+      `;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("add-btn").addEventListener("click", addMutation);
+      document.getElementById("remove-btn").addEventListener("click", removeMutation);
+      document.getElementById("calc-btn").addEventListener("click", calculateValue);
+      addMutation(); // Add the first mutation by default
+    });
+  </script>
+</body>
+</html>
