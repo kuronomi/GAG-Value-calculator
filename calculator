@@ -105,6 +105,7 @@
       <select id="item">
         <option value="carrot">Carrot</option>
         <option value="strawberry">Strawberry</option>
+        <option value="blueberry">Blueberry</option>
       </select>
     </div>
 
@@ -146,10 +147,17 @@
       }
 
       if (selectedItem === "strawberry") {
-        // Reduced price: 90% off the original 1700–2000¢ range
-        const reducedMin = 2000 * 0.1; // 200¢
-        const reducedMax = 2500 * 0.1; // 250¢
+        // Updated price range: 185¢ – 200¢ per kg
+        const reducedMin = 185;
+        const reducedMax = 200;
         return Math.floor(Math.random() * (reducedMax - reducedMin + 1)) + reducedMin;
+      }
+
+      if (selectedItem === "blueberry") {
+        // Blueberry price range: 150¢ – 180¢ per kg
+        const blueberryMin = 150;
+        const blueberryMax = 180;
+        return Math.floor(Math.random() * (blueberryMax - blueberryMin + 1)) + blueberryMin;
       }
 
       return 0;
@@ -204,7 +212,7 @@
 
       const rawPrice = basePricePerKg * totalWeight;
       const minValue = Math.round(rawPrice * 0.8 * totalMultiplier);
-      const maxValue = Math.round(rawPrice * 2.0 * totalMultiplier);
+      const maxValue = Math.round(rawPrice * 1.9 * totalMultiplier);
 
       document.getElementById("result").innerHTML = `
         <strong>Base Price per kg:</strong> ${Math.round(basePricePerKg)}¢<br>
